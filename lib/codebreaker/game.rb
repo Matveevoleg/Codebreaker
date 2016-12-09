@@ -1,14 +1,12 @@
-require_relative '../modules/output_module'
 require_relative '../modules/save_module'
 require_relative '../modules/mark_module'
 
 module Codebreaker
   class Game
-    include(OutputModule)
     include(SaveModule)
     include(MarkModule)
 
-    attr_reader :hint, :attempts
+    attr_reader :hints, :attempts
 
     HINTS = 2
     ATTEMPTS = 5
@@ -17,74 +15,30 @@ module Codebreaker
     def initialize
       @secret_code = generate_secret_code
       @attempts = ATTEMPTS
-      @hint = HINTS
+      @hints = HINTS
     end
 
-    def start
-      Game.new.play
-    end
-
-    def play
-      while @attempts != 0
-        suggest_to_guess_secret_number
-        show_user_info
-        result = user_input
-
-        case result
-          when 'hint'
-            get_hint
-          when 'win'
-            end_game('win')
-          else
-            show_answer(result)
-        end
-
-        @attempts -= 1
-      end
-
-      end_game('lose')
-    end
-
-    def end_game(result)
-      show_result(result)
-      save_result(get_user_data, CODEBREAKER_FILE)
-      suggest_to_play_again
-    end
-
-    def suggest_to_play_again
-      play_again
-      start if get_input == 'y'
-      exit
+    def save(user_data)
+      save_result(user_data, CODEBREAKER_FILE)
     end
 
     def get_hint
       @attempts += 1
-
-      return no_hints if @hint == 0
-
-      show_hint(@secret_code)
-      @hint -= 1
+      return if @hints == 0
+      @hints -= 1
+      hint
     end
 
-    def user_input
-      input = get_input
-
-      return get_answer(input) if correct_input?(input)
-
-      @attempts += 1
-      incorrect_input
+    def reduce_attempts
+      @attempts -= 1
     end
 
-    def get_input
-      gets.chomp.downcase
-    end
+    def get_answer(input)
+      return 'win' if input == @secret_code
+      return input if input == 'hint'
 
-    def get_user_data
-      puts 'Enter your name'
-      name = get_input
-      name.center(10) + ' | ' + (HINTS - @hint).to_s.center(5) + ' | ' + (ATTEMPTS - @attempts).to_s.center(8) + ' | '
+      answer(input)
     end
-
     private
 
     def generate_secret_code

@@ -3,8 +3,8 @@ module OutputModule
     puts 'Try to guess the secret number'
   end
 
-  def show_user_info
-    puts "You have: #{@attempts} attempts, #{@hint} hints."
+  def show_user_info(attempts, hint)
+    puts "You have: #{attempts} attempts, #{hint} hints."
   end
 
   def show_result(result)
@@ -22,14 +22,6 @@ module OutputModule
 
   def incorrect_input
     puts 'Incorrect input!'
-  end
-
-  def show_hint(secret_code)
-    output_string = '---'
-    number = rand(0..3)
-    output_string.insert(number,secret_code[number])
-
-    puts output_string
   end
 
   def show_answer(answer)
